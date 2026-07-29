@@ -46,7 +46,7 @@ interface LetterModal {
 
 export default function Dashboard() {
   const { user, token, logout } = useAuth()
-  const [letters, setLetters] = useState<Letter[] | null>(null)
+  const [letters, setLetters] = useState<Letter[] | "loading">("loading")
   const [letterModal, setLetterModal] = useState<LetterModal>({
     open: false,
     letter: null,
@@ -59,9 +59,10 @@ export default function Dashboard() {
   }
 
   const getLetters = async () => {
+    setLetters("loading")
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/letter?`,
+        `${process.env.NEXT_PUBLIC_API_URL}/letter/byuser`,
         {
           method: "GET",
           headers: {
@@ -69,11 +70,17 @@ export default function Dashboard() {
           },
         }
       )
-      if (!response.ok) {
+      const { status } = response
+
+      if(status == 404) {
+        setLetters([])
+        return
+      }
+      if(status !== 200) {
         throw new Error("Gagal ambil data surat")
       }
       const json = await response.json()
-      setLetters(json)
+      setLetters(json.data)
     } catch (error) {
       toast.error("Gagal", {
         description:
@@ -177,83 +184,87 @@ export default function Dashboard() {
               </Badge>
             </div>
 
-            {letters !== null ? (
-              <Accordion
-                //   collapsible
-                className="w-full"
-              >
-                {letters.map((el) => (
-                  <AccordionItem key={el.id} value={el.id}>
-                    <AccordionTrigger>
-                      <div className="flex flex-col items-start text-left">
-                        <span className="font-medium">{el.title}</span>
-
-                        <span className="text-sm text-muted-foreground">
-                          {el.category}
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-
-                    <AccordionContent>
-                      <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
-                        <div>
-                          <p className="text-sm font-medium">Deskripsi</p>
-
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {el.description}
-                          </p>
-                        </div>
-
-                        <div className="grid gap-2 text-sm md:grid-cols-2">
-                          <div>
-                            <span className="font-medium">File:</span> {el.file}
-                          </div>
-
-                          <div>
-                            <span className="font-medium">Dibuat:</span>{" "}
-                            {new Date(el.created_at).toLocaleDateString(
-                              "id-ID"
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          <Button size="sm">
-                            <Eye className="mr-2 h-4 w-4" />
-                            Lihat
-                          </Button>
-
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              setLetterModal({ letter: el, open: true })
-                            }
-                          >
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </Button>
-
-                          <Button size="sm" variant="outline">
-                            <Download className="mr-2 h-4 w-4" />
-                            Unduh
-                          </Button>
-
-                          <Button size="sm" variant="destructive" onClick={() => removeLetter(el.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus
-                          </Button>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            ) : (
-              <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
-                Belum ada template surat.
+            { letters == "loading" ?
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <p className="text-sm text-muted-foreground">
+                  Memuat halaman...
+                </p>
               </div>
-            )}
+              :
+              letters.length > 0 ? (
+                <Accordion
+                  //   collapsible
+                  className="w-full"
+                >
+                  {letters.map((el) => (
+                    <AccordionItem key={el.id} value={el.id}>
+                      <AccordionTrigger>
+                        <div className="flex flex-col items-start text-left">
+                          <span className="font-medium">{el.title}</span>
+
+                          <span className="text-sm text-muted-foreground">
+                            {el.category}
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+
+                      <AccordionContent>
+                        <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+                          <div>
+                            <p className="text-sm font-medium">Deskripsi</p>
+
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {el.description}
+                            </p>
+                          </div>
+
+                          <div className="grid gap-2 text-sm md:grid-cols-2">
+                            <div>
+                              <span className="font-medium">File:</span> {el.file}
+                            </div>
+
+                            <div>
+                              <span className="font-medium">Dibuat:</span>{" "}
+                              {new Date(el.created_at).toLocaleDateString(
+                                "id-ID"
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <Button size="sm">
+                              <Eye className="mr-2 h-4 w-4" />
+                              Lihat
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                setLetterModal({ letter: el, open: true })
+                              }
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                            </Button>
+
+                            <Button size="sm" variant="destructive" onClick={() => removeLetter(el.id)}>
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Hapus
+                            </Button>
+                          </div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              ) : (
+                <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
+                  Belum ada template surat.
+                </div>
+              )
+            }
           </CardContent>
         </Card>
       </div>

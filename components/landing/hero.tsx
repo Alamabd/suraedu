@@ -8,40 +8,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import LetterCard, { LetterType } from "./letterCard"
+import { toast } from "sonner"
+import LetterGenDialog from "./letterGenDialog"
 
-const lettersRaw = [
-  {
-    id: '126asa1721',
-    title: "Surat Tugas",
-    category: "Kepegawaian",
-    description:
-      "Template surat tugas untuk guru atau pegawai sekolah dalam menjalankan kegiatan tertentu.",
-  },
-
-  {
-    id: '1261w1721',
-    title: "Surat Undangan Rapat",
-    category: "Administrasi",
-    description:
-      "Template undangan rapat sekolah untuk wali murid, guru, maupun instansi terkait.",
-  },
-
-  {
-    id: '1261789a21',
-    title: "Surat Keterangan Aktif",
-    category: "Keterangan",
-    description:
-      "Surat keterangan aktif sekolah yang dapat digunakan untuk berbagai kebutuhan administrasi.",
-  },
-
-  {
-    id: '12617gas621',
-    title: "Surat Keputusan",
-    category: "Keputusan",
-    description:
-      "Template surat keputusan kepala sekolah dengan format administrasi resmi.",
-  },
-]
 
 export default function Hero() {
   const features = [
@@ -50,12 +19,17 @@ export default function Hero() {
     "Buat template surat sendiri",
   ]
   const [letters, setLetters] = useState<null | LetterType[]>(null)
+  const [letterDialog, setLetterDialog] = useState({
+    open: false,
+    index: -1
+  })
+
   const [keyword, setKeyword] = useState("")
   const router = useRouter()
   const searchParams = useSearchParams()
   const search = searchParams.get("search") || ""
   const lettersRef = useRef<HTMLDivElement>(null)
-
+  
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
@@ -72,10 +46,38 @@ export default function Hero() {
     }, 200);
   }
 
+  const getLetters = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/letters/?search=${search}`,
+        {
+          method: "GET",
+        }
+      )
+      const { status } = response
+
+      if(status == 404) {
+        setLetters([])
+        return
+      }
+      if(status !== 200) {
+        throw new Error("Gagal ambil data surat")
+      }
+      const json = await response.json()
+      setLetters(json)
+    } catch (error) {
+      toast.error("Gagal", {
+        description: error instanceof Error ? error.message : "Terjadi kesalahan",
+        position: "top-center",
+        richColors: true,
+      })
+    }
+  }
+
   useEffect(() => {
     if (search) {
       setKeyword(search)
-      setLetters(lettersRaw)
+      getLetters()
     }
   }, [search])
 
@@ -139,8 +141,8 @@ export default function Hero() {
 
             {letters && letters.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {letters.map((letter) => (
-                  <LetterCard key={letter.id} {...letter} />
+                {letters.map((letter, i) => (
+                  <LetterCard {...letter} onPress={() => setLetterDialog({ open: true, index: i})} key={letter.id} />
                 ))}
               </div>
             ) : (
@@ -222,6 +224,10 @@ export default function Hero() {
           </>
         )}
       </div>
+      {
+        letterDialog.index !== -1 &&
+        <LetterGenDialog fields={JSON.parse(letters![letterDialog.index].keys ?? "")} open={letterDialog.open} onOpenChange={() => setLetterDialog({ ...letterDialog, open: false  })} />
+      }
     </section>
   )
 }

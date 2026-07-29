@@ -1,5 +1,0 @@
-.env
-database*
-node_modules
-sdk-firebase-admin.json
-uploads

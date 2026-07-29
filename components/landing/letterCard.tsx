@@ -10,6 +10,8 @@ export type LetterType = {
   title: string
   category: string
   description: string
+  onPress: () => void
+  keys?: string
 }
 
 export default function LetterCard({
@@ -17,6 +19,7 @@ export default function LetterCard({
   title,
   category,
   description,
+  onPress
 }: LetterType) {
   return (
     <Card className="group overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -41,8 +44,7 @@ export default function LetterCard({
       </CardContent>
 
       <CardFooter>
-        <Link href={`/generate/${id}`}>
-        <Button className="w-full gap-2">
+        <Button className="w-full gap-2" onClick={onPress}>
           <FilePenLine size={18} />
           Gunakan Surat
           <ArrowRight
@@ -50,7 +52,6 @@ export default function LetterCard({
             className="transition group-hover:translate-x-1"
           />
         </Button>
-        </Link>
       </CardFooter>
     </Card>
   )
