@@ -21,7 +21,7 @@ export default function Navbar() {
       console.log(credential.user)
       const token = await credential.user.getIdToken();
       if(token) {
-        const reqServer =  await fetch("http://localhost:3001/auth/login", {
+        const reqServer =  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
