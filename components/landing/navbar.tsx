@@ -58,8 +58,8 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-xl">
-      <div className="container mx-auto flex h-20 items-center justify-between px-6">
+    <header className="absolute z-10 left-0 right-0 py-3 border-b backdrop-blur-xl">
+      <div className="container mx-auto flex items-center justify-between px-6">
         {/* Logo */}
 
         <div className="flex items-center gap-3">
