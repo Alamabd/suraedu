@@ -18,7 +18,7 @@
 ## 📌 Roadmap
 
 * [x] Google Authetication
-* [ ] Manajemen template surat
+* [x] Manajemen template surat
 * [ ] Tanda tangan digital
 * [ ] QR Code verifikasi dokumen
 * [ ] Dashboard
@@ -40,27 +40,6 @@
 * **Express.js**
 * REST API
 
-### Database
-
-* **SQLite**
-
-### Authentication
-
-* **Firebase**
-  
-  * Authentication
-
----
-
-## 📂 Project Structure
-
-```text
-suraedu/
-├── frontend/           # Next.js Frontend
-├── backend/            # Express.js Backend
-└── README.md
-```
-
 ---
 
 ## 🚀 Getting Started
@@ -72,24 +51,12 @@ git clone https://github.com/Alamabd/suraedu.git
 cd suraedu
 ```
 
-### 2. Install Dependencies
-
-Frontend
+### 2. Install Dependencies & RUn
 
 ```bash
-cd frontend
 npm install
+npm run dev
 ```
-
-Backend
-
-```bash
-cd ../backend
-npm install
-npm run migrate
-```
-
----
 
 ## ⚙️ Environment Variables
 
@@ -102,40 +69,14 @@ Buat file `.env` pada masing-masing project.
 NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
-### Backend (`backend/.env`)
-
-```env
-JWT_SECRET=super_secret_key_suraedu
-JWT_EXPIRES=7d
-```
-
----
-
-## ▶️ Running the Project
-
-Jalankan frontend
-
-```bash
-cd frontend
-npm run dev
-```
-
-Jalankan backend New Terminal
-
-```bash
-cd backend
-npm run dev
-```
-
 ---
 
 ## 📖 Workflow
 
 1. Pilih template surat.
 2. Isi data yang diperlukan.
-3. Sistem memvalidasi input.
-4. Dokumen dibuat secara otomatis.
-5. Surat siap diunduh.
+3. Dokumen dibuat secara otomatis.
+4. Surat siap diunduh.
 
 ---
 
@@ -144,19 +85,3 @@ npm run dev
 SuraEdu dikembangkan untuk membantu sekolah, guru, tenaga kependidikan, maupun instansi pendidikan dalam mempercepat proses administrasi surat sehingga lebih efisien, konsisten, dan minim kesalahan.
 
 ---
-
-## 🤝 Contributing
-
-Kontribusi sangat terbuka. Silakan lakukan:
-
-1. Fork repository
-2. Buat branch baru
-3. Commit perubahan
-4. Push ke branch
-5. Buat Pull Request
-
----
-
-## 📄 License
-
-Project ini menggunakan lisensi **MIT License**.
