@@ -23,11 +23,13 @@ import {
 } from "@/components/ui/accordion"
 import { useEffect, useState } from "react"
 import LetterModal from "@/components/dashboard/letterModal"
-import { Logout } from "@hugeicons/core-free-icons"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { signOut } from "firebase/auth"
 import { auth } from "@/lib/firebase"
+
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Letter {
   id: string
@@ -73,7 +75,7 @@ export default function Dashboard() {
       )
       const { status } = response
 
-      if(status !== 200) {
+      if (status !== 200) {
         setLetters([])
         throw new Error("Gagal ambil data surat")
       }
@@ -126,51 +128,66 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="mx-auto max-w-7xl space-y-8 p-8">
-        <header className="flex flex-col gap-6 rounded-2xl border bg-card p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-          {/* Kiri */}
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <FileText size={22} />
+        <header className="rounded-2xl border bg-card p-6 shadow-sm">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            {/* Left */}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-14 w-14 rounded-xl">
+                <AvatarImage src={user?.photo} />
+                <AvatarFallback className="rounded-xl text-lg font-semibold">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    Selamat datang, {user?.name}
+                  </h1>
+
+                  <Badge variant="secondary">
+                    Administrator
+                  </Badge>
+                </div>
+
+                <p className="text-sm text-muted-foreground">
+                  Kelola template surat administrasi pendidikan dengan lebih cepat dan
+                  efisien.
+                </p>
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  Platform Surat Digital
+                </div>
+              </div>
             </div>
 
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">
-                Selamat datang, {user?.name} 👋
-              </h1>
-
-              <p className="text-sm text-muted-foreground">
-                Kelola template surat instansi pendidikan dengan mudah.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              className="cursor-pointer"
-              onClick={() => setLetterModal({ letter: null, open: true })}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Template Baru
-            </Button>
-
-            <Link target="_blank" href="/guide" className="cursor-pointer">
-              <Button variant="outline">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Panduan
+            {/* Right */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                onClick={() => setLetterModal({ letter: null, open: true })}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Template Baru
               </Button>
-            </Link>
 
-            <Button
-              variant="destructive"
-              className="cursor-pointer"
-              onClick={goLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
+              <Link href="/guide" target="_blank">
+                <Button variant="outline">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Panduan
+                </Button>
+              </Link>
+
+              <Button
+                variant="destructive"
+                onClick={goLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </div>
           </div>
         </header>
-
         {/* Letter */}
         <Card>
           <CardContent className="p-6">
@@ -182,7 +199,7 @@ export default function Dashboard() {
               </Badge>
             </div>
 
-            { letters == "loading" ?
+            {letters == "loading" ?
               <div className="flex flex-col items-center gap-4">
                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                 <p className="text-sm text-muted-foreground">

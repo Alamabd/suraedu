@@ -83,7 +83,7 @@ export default function LetterModal({
 
   const handleSubmit = async () => {
     const formData = new FormData()
-    formData.append("uid", user?.id.toString()!)
+    formData.append("uid", user?.uid.toString()!)
     formData.append("title", title)
     formData.append("category", category)
     formData.append("description", description)
