@@ -109,8 +109,10 @@ export default function RootLayout({
       )}
     >
       <body>
-        <Toaster />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <Toaster />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

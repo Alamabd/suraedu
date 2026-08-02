@@ -2,7 +2,6 @@
 
 import {
   BookOpen,
-  Download,
   Eye,
   FileText,
   LogOut,
@@ -27,6 +26,8 @@ import LetterModal from "@/components/dashboard/letterModal"
 import { Logout } from "@hugeicons/core-free-icons"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 
 interface Letter {
   id: string
@@ -53,8 +54,8 @@ export default function Dashboard() {
   })
   const router = useRouter()
 
-  const goLogout = () => {
-    logout()
+  const goLogout = async () => {
+    await signOut(auth)
     router.replace("/")
   }
 
@@ -72,11 +73,8 @@ export default function Dashboard() {
       )
       const { status } = response
 
-      if(status == 404) {
-        setLetters([])
-        return
-      }
       if(status !== 200) {
+        setLetters([])
         throw new Error("Gagal ambil data surat")
       }
       const json = await response.json()
