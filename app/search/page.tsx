@@ -27,11 +27,13 @@ export default async function SearchPage({ searchParams }: Props) {
     
         if (status == 200) {
             const json = await response.json()
-            data = json as LetterType[]
+            console.log(json.data)
+            data = json.data as LetterType[]
         }
     } catch (error) {
         
     }
+
 
     return (
         <div className="min-h-screen bg-background">
@@ -44,7 +46,7 @@ export default async function SearchPage({ searchParams }: Props) {
                     <div className="mx-auto max-w-4xl text-center">
 
                         <Badge className="rounded-full">
-                            Hasil Pencarian
+                            Hasil Pencarian {data.length}
                         </Badge>
 
                         <h1 className="mt-6 text-4xl font-bold tracking-tight md:text-5xl">
@@ -83,6 +85,7 @@ export default async function SearchPage({ searchParams }: Props) {
                     </form>
                 </div>
             </section>
+
             <Letter data={data} q={q} />
             
             <Footer />

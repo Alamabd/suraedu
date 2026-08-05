@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight, FilePenLine, FileText, SearchX } from "lucide-react";
+import { ArrowRight, FilePenLine, FileText, SearchX, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +18,9 @@ export type LetterType = {
   title: string;
   category: string;
   description: string;
+  keys: string;
+  creator: string;
   file?: string;
-  keys: string
 };
 
 type LettersType = LetterType[]
@@ -28,7 +29,7 @@ export default function Letter({ data, q }: { data: LettersType, q: string }) {
   const [selectLettter, setSellectLetter] = useState<null | number>(null)
   
   return (
-    <section className="mb-8 container mx-auto px-6">
+    <section className="mb-8 container mx-auto sm:px-16 px-6">
       <div className="mb-8 flex items-end justify-between">
 
         <div>
@@ -47,70 +48,82 @@ export default function Letter({ data, q }: { data: LettersType, q: string }) {
       </div>
 
       {data.length > 0 ? (
-        <div className="flex min-h-[320px] flex-wrap gap-3 items-center justify-center rounded-2xl border border-dashed bg-muted/20 px-6 py-12 text-center">
-          {data.map((letter, index) => (
-            <Card key={index} className="group flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
+        <div className="flex min-h-[320px] flex-wrap gap-3 items-center rounded-2xl border border-dashed bg-muted/20 py-12 text-center">
+         {data.map((letter, index) => (
+  <Card
+    key={letter.id}
+    className="group overflow-hidden rounded-xl border transition hover:border-primary/40 hover:shadow-md"
+  >
+    <CardContent className="p-4">
 
-              <CardHeader className="space-y-5">
+      <div className="flex gap-4">
 
-                <div className="flex items-center justify-between">
+        {/* Icon */}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <FileText size={22} />
+        </div>
 
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:scale-105">
-                    <FileText size={24} />
-                  </div>
 
-                  <Badge variant="secondary">
-                    DOCX
-                  </Badge>
+        {/* Content */}
+        <div className="min-w-0 flex-1">
 
-                </div>
+          <div className="flex items-start justify-between gap-2">
 
-                <div>
+            <h3 className="line-clamp-1 font-semibold">
+              {letter.title}
+            </h3>
 
-                  <h3 className="line-clamp-2 text-xl font-semibold leading-snug">
-                    {letter.title}
-                  </h3>
+            <Badge
+              variant="secondary"
+              className="shrink-0"
+            >
+              DOCX
+            </Badge>
 
-                  <Badge
-                    variant="outline"
-                    className="mt-3"
-                  >
-                    {letter.category}
-                  </Badge>
+          </div>
 
-                </div>
 
-              </CardHeader>
+          <Badge
+            variant="outline"
+            className="mt-2"
+          >
+            {letter.category}
+          </Badge>
 
-              <CardContent className="flex-1">
 
-                <p className="line-clamp-4 text-sm leading-7 text-muted-foreground">
-                  {letter.description}
-                </p>
+          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+            {letter.description}
+          </p>
 
-              </CardContent>
 
-              <CardFooter className="border-t bg-muted/20">
+          <p className="mt-2 text-xs text-muted-foreground">
+            Oleh {letter.creator ?? "Tidak diketahui"}
+          </p>
 
-                <Button
-                  onClick={() => setSellectLetter(index)}
-                  className="w-full justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    <FilePenLine size={18} />
-                    Gunakan Template
-                  </span>
+        </div>
 
-                  <ArrowRight
-                    size={18}
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </Button>
+      </div>
 
-              </CardFooter>
 
-            </Card>
-          ))}
+      {/* Action */}
+      <Button
+        onClick={() => setSellectLetter(index)}
+        size="sm"
+        className="mt-4 w-full justify-between"
+      >
+        Gunakan Template
+
+        <ArrowRight
+          size={16}
+          className="transition-transform group-hover:translate-x-1"
+        />
+
+      </Button>
+
+
+    </CardContent>
+  </Card>
+))}
         </div>
       ) : (
         <EmptyState

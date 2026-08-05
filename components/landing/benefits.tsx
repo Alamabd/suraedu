@@ -55,7 +55,7 @@ const benefits = [
 
 export default function Benefits() {
   return (
-    <section id="benefits" className="container mx-auto px-6 py-24">
+    <section id="benefits" className="container mx-auto sm:px-16 px-6 py-24">
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="text-4xl font-bold tracking-tight">
           Administrasi Surat Sekolah Lebih Mudah Dengan

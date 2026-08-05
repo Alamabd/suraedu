@@ -1,21 +1,23 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { auth } from "@/lib/firebase"
+import { loginGoogleService } from "@/services/auth"
+import { signOut } from "firebase/auth"
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
 
 interface User {
-  id: number;
-  uid: string;
-  name: string;
-  email: string;
-  photo: string;
-  provider: string;
+  id: number
+  uid: string
+  name: string
+  email: string
+  photo: string
+  provider: string
 }
 
 interface AuthState {
-  token: string | null;
-  user: User | null;
+  user: User | null
 
-  login: (token: string, user: User) => void;
-  logout: () => void;
+  loginGoogle: () => void
+  logout: () => void
 }
 
 export const useAuth = create<AuthState>()(
@@ -24,20 +26,22 @@ export const useAuth = create<AuthState>()(
       token: null,
       user: null,
 
-      login: (token, user) =>
+      loginGoogle: async () => {
+        const { user } = await loginGoogleService()
         set({
-          token,
           user,
-        }),
+        })
+      },
 
-      logout: () =>
+      logout: () => {
+        signOut(auth)
         set({
-          token: null,
           user: null,
-        }),
+        })
+      },
     }),
     {
       name: "auth-storage",
     }
   )
-);
+)
