@@ -6,6 +6,8 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { Toaster } from "sonner"
+import AuthProvider from "@/components/authProvider"
+import { ConfirmDialogProvider } from "@/components/confirmDialogProvider"
 
 const geist = Geist({
   subsets: ["latin"],
@@ -111,7 +113,10 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <Toaster />
-          {children}
+          <ConfirmDialogProvider />
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

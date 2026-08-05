@@ -10,7 +10,7 @@ export default function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { login, logout } = useAuth();
+  const { logout } = useAuth();
 
   const [loading, setLoading] = useState(true);
 
@@ -21,18 +21,6 @@ export default function AuthProvider({
         setLoading(false);
         return;
       }
-
-      const token = await user.getIdToken();
-
-      login(token, {
-        id: 0,
-        uid: user.uid,
-        name: user.displayName ?? "",
-        email: user.email ?? "",
-        photo: user.photoURL ?? "",
-        provider: user.providerData[0]?.providerId ?? "",
-      });
-
       setLoading(false);
     });
 

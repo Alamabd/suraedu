@@ -7,9 +7,12 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { SubmitEvent } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/store/useAuth"
+import { toast } from "sonner"
 
 export default function Hero() {
   const router = useRouter()
+  const { loginGoogle, user } = useAuth()
   const features = [
     "Format surat standar sekolah",
     "Template siap edit DOCX",
@@ -19,8 +22,34 @@ export default function Hero() {
   const onSearch = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     const q = e.target.search.value
-    if(q.length > 0) {
+    if (q.length > 0) {
       router.push(`/search/?q=${q}`)
+    }
+  }
+
+  const requestLogin = async () => {
+    try {
+      await loginGoogle()
+      router.push("/dashboard")
+    } catch (err) {
+      toast.error("Pemberitahuan", {
+        description:
+          err instanceof Error
+            ? err.message
+              ? err.message
+              : "No message error"
+            : "Unknown error",
+        position: "top-center",
+        richColors: true,
+      })
+    }
+  }
+
+  const handleButtonCreateTemplate = async () => {
+    if(user) {
+      router.push("/dashboard")
+    } else {
+      await requestLogin()
     }
   }
 
@@ -69,8 +98,9 @@ export default function Hero() {
 
           <div className="mt-4 flex items-center justify-center gap-3 text-sm text-muted-foreground">
             <span>atau</span>
+            <span className="underline italic">{user?.name}</span>
 
-            <Button variant="destructive">Buat Template Sendiri</Button>
+            <Button variant="destructive" onClick={() => handleButtonCreateTemplate()}>Buat Template Sendiri</Button>
           </div>
           {/* Features */}
 
@@ -98,9 +128,7 @@ export default function Hero() {
               <div>
                 <p className="text-2xl font-bold">500+</p>
 
-                <p className="text-sm text-muted-foreground">
-                  Template Surat
-                </p>
+                <p className="text-sm text-muted-foreground">Template Surat</p>
               </div>
             </CardContent>
           </Card>
