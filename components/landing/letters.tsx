@@ -29,7 +29,7 @@ export default function Letter({ data, q }: { data: LettersType, q: string }) {
   const [selectLettter, setSellectLetter] = useState<null | number>(null)
   
   return (
-    <section className="mb-8 container mx-auto px-6">
+    <section className="mb-8 container mx-auto sm:px-16 px-6">
       <div className="mb-8 flex items-end justify-between">
 
         <div>

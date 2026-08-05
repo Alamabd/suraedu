@@ -42,7 +42,7 @@ export default function GuidePage() {
       {/* Navbar */}
       <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur">
 
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex container items-center justify-between sm:px-16 px-6 py-4">
 
           <Link href="/dashboard">
             <Button
@@ -66,7 +66,7 @@ export default function GuidePage() {
 
 
 
-      <main className="mx-auto max-w-5xl space-y-8 px-6 pt-8">
+      <main className="mx-auto container space-y-8 sm:px-16 px-6 pt-8">
 
 
         {/* Header */}

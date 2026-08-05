@@ -39,7 +39,7 @@ export default function Navbar() {
 
   return (
     <header className="absolute right-0 left-0 z-10 border-b py-3 backdrop-blur-xl">
-      <div className="container mx-auto flex items-center justify-between px-6">
+      <div className="container mx-auto flex items-center justify-between sm:px-16 px-6">
         {/* Logo */}
 
         <div className="flex items-center gap-3">
