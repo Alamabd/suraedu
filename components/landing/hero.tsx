@@ -55,7 +55,8 @@ export default function Hero() {
 
   return (
     <section id="hero" className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-100/70 via-background to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-neutral-100 via-white to-white" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.05)_1px,transparent_1px)] bg-[size:24px_24px]" />
 
       <div className="relative container mx-auto sm:px-16 px-6 py-24">
         <div className="mx-auto max-w-4xl text-center">

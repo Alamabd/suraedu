@@ -48,7 +48,7 @@ export default function Letter({ data, q }: { data: LettersType, q: string }) {
       </div>
 
       {data.length > 0 ? (
-        <div className="flex min-h-[320px] flex-wrap gap-3 items-center rounded-2xl border border-dashed bg-muted/20 py-12 text-center">
+        <div className="grid min-h-[320px] content-start gap-5 rounded-2xl border border-dashed bg-muted/20 p-5 md:grid-cols-2 lg:grid-cols-3">
          {data.map((letter, index) => (
   <Card
     key={letter.id}
