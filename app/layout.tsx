@@ -21,22 +21,18 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "SuraEdu - Platform Surat Digital untuk Sekolah",
+    default: "SuraEdu - Platform Surat Digital",
     template: "%s | SuraEdu",
   },
 
   description:
-    "Buat, kelola, dan gunakan kembali template surat untuk kebutuhan administrasi pendidikan. SuraEdu membantu guru dan operator sekolah membuat dokumen resmi lebih cepat, rapi, dan konsisten.",
+    "Buat, kelola, dan gunakan kembali template surat untuk kebutuhan administrasi. SuraEdu membantu membuat dokumen resmi lebih cepat, rapi, dan konsisten.",
 
   keywords: [
     "surat sekolah",
     "template surat",
-    "surat pendidikan",
-    "administrasi sekolah",
+    "administrasi",
     "surat resmi",
-    "operator sekolah",
-    "guru",
-    "dokumen pendidikan",
   ],
 
   authors: [

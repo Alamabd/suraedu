@@ -20,19 +20,12 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { useAuth } from "@/store/useAuth"
 import { getAuth } from "firebase/auth"
-
-interface Letter {
-  id: string
-  title: string
-  category: string
-  description: string
-  file: string
-}
+import { useLetters } from "@/store/useLetters"
 
 interface LetterModalProps {
   open: boolean
   onOpenChange: (update: boolean) => void
-  letter?: Letter | null
+  letter_id: number | null
 }
 
 const CATEGORY_SUGGESTIONS = [
@@ -44,10 +37,10 @@ const CATEGORY_SUGGESTIONS = [
   "Pengumuman",
 ]
 
-export default function LetterModal({
+export default function ModalLetter({
   onOpenChange,
   open,
-  letter,
+  letter_id
 }: LetterModalProps) {
   const { user } = useAuth()
   const auth = getAuth()
@@ -55,31 +48,16 @@ export default function LetterModal({
   const [category, setCategory] = useState("")
   const [description, setDescription] = useState("")
   const [file, setFile] = useState<File | null | string>(null)
-  const [loader, setLoader] = useState(false)
-
-  const isEditing = Boolean(letter)
-
-  const saveLetter = async (formData: FormData, id?: string) => {
+  const { letters, upsertLetter, loading } = useLetters()
+  
+  const letter = letter_id !== null
+  ? letters.find((val) => val.id === letter_id)
+  : undefined
+  const isEditing = letter_id != null
+  
+  const saveLetter = async (formData: FormData) => {
     try {
-      setLoader(true)
-      const isUpdate = Boolean(id)
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/letter/`,
-        {
-          method: isUpdate ? "PUT" : "POST",
-          headers: {
-            Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
-          },
-          body: formData,
-        }
-      )
-
-      const json = await response.json()
-
-      if (!response.ok) {
-        throw new Error(json.message || "Gagal menyimpan template")
-      }
+      const json = await upsertLetter(formData, await auth.currentUser?.getIdToken()!, letter_id ?? undefined)
 
       toast.success("Berhasil", {
         description: json.message,
@@ -88,13 +66,12 @@ export default function LetterModal({
 
       onOpenChange(true)
     } catch (error) {
+      console.log(error)
       toast.error("Gagal", {
         description:
           error instanceof Error ? error.message : "Terjadi kesalahan",
         richColors: true,
       })
-    } finally {
-      setLoader(false)
     }
   }
 
@@ -117,7 +94,7 @@ export default function LetterModal({
 
     const formData = new FormData()
     if (letter?.id) {
-      formData.append("id", letter.id)
+      formData.append("id", letter.id.toString())
     }
     formData.append("uid", user?.uid.toString() || "")
     formData.append("title", title)
@@ -136,26 +113,22 @@ export default function LetterModal({
       return
     }
 
-    if (letter) {
-      saveLetter(formData, letter.id)
-    } else {
-      saveLetter(formData)
-    }
+    saveLetter(formData)
   }
 
   useEffect(() => {
-    if (letter) {
+    if (letter_id && letter) {
       setTitle(letter.title)
       setCategory(letter.category)
       setDescription(letter.description)
-      setFile(letter.file)
+      setFile(letter.file!)
     } else {
       setTitle("")
       setCategory("")
       setDescription("")
       setFile(null)
     }
-  }, [letter, open])
+  }, [letter_id, letter, open])
 
   const getFileName = () => {
     if (!file) return ""
@@ -282,8 +255,8 @@ export default function LetterModal({
             Batal
           </Button>
 
-          <Button disabled={loader} onClick={handleSubmit}>
-            {loader && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button disabled={loading} onClick={handleSubmit}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEditing ? "Simpan Perubahan" : "Simpan Template"}
           </Button>
         </DialogFooter>

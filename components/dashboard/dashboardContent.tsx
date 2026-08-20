@@ -5,6 +5,7 @@ import {
   Calendar,
   Eye,
   FileCheck,
+  FileOutput,
   FileText,
   FolderKanban,
   Grid,
@@ -27,31 +28,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-
-export interface Letter {
-  id: string
-  user_id: number
-  title: string
-  category: string
-  description: string
-  file: string
-  created_at: string
-  updated_at: string
-}
+import { useLetters } from "@/store/useLetters"
 
 interface DashboardContentProps {
-  letters: Letter[] | "loading"
   onNewTemplate: () => void
-  onEditLetter: (letter: Letter) => void
-  onRemoveLetter: (id: string) => void
+  onEditLetter: (letter_id: number) => void
+  onRemoveLetter: (letter_id: number) => void
+  onPreviewLetter: (letter_id: number) => void
 }
 
 export default function DashboardContent({
-  letters,
   onNewTemplate,
   onEditLetter,
   onRemoveLetter,
+  onPreviewLetter
 }: DashboardContentProps) {
+  const { letters, loading } = useLetters()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("semua")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -86,78 +78,136 @@ export default function DashboardContent({
   return (
     <div className="space-y-6">
       {/* 1. Stat Cards Overview */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Card 1: Total Templates */}
-        <Card className="shadow-2xs">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">
-                Total Template
-              </span>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="mt-2 text-2xl font-bold">
-              {letters === "loading" ? "..." : totalLetters}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Template surat aktif
-            </p>
-          </CardContent>
-        </Card>
+      <Card className="relative overflow-hidden border shadow-2xs">
+        {/* Background */}
+        <div className="pointer-events-none absolute inset-0">
+          {/* Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.07] via-transparent to-primary/[0.03]" />
 
-        {/* Card 2: Categories */}
-        <Card className="shadow-2xs">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">
-                Kategori Surat
-              </span>
-              <FolderKanban className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="mt-2 text-2xl font-bold">
-              {letters === "loading" ? "..." : categories.length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Kategori terdaftar
-            </p>
-          </CardContent>
-        </Card>
+          {/* Dot pattern */}
+          <div
+            className="
+        absolute inset-0
+        opacity-[0.18]
+        [background-image:radial-gradient(circle,_currentColor_1px,_transparent_1px)]
+        [background-size:18px_18px]
+        text-primary
+      "
+          />
 
-        {/* Card 3: Format */}
-        <Card className="shadow-2xs">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">
-                Format Surat
-              </span>
-              <FileCheck className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="mt-2 text-2xl font-bold">DOCX</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Standar dokumen digital
-            </p>
-          </CardContent>
-        </Card>
+          {/* Decorative document */}
+          <FileText
+            className="
+        absolute
+        -right-10
+        -top-12
+        h-56
+        w-56
+        rotate-12
+        text-primary/[0.055]
+      "
+            strokeWidth={1}
+          />
 
-        {/* Card 4: Quick Action */}
-        <Card className="shadow-2xs flex flex-col justify-between">
-          <CardContent className="p-6 flex h-full flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-muted-foreground">
-                Aksi Cepat
-              </span>
-              <Plus className="h-4 w-4 text-muted-foreground" />
+          {/* Small decorative document */}
+          <FileText
+            className="
+        absolute
+        right-28
+        -bottom-8
+        h-24
+        w-24
+        -rotate-12
+        text-primary/[0.035]
+      "
+            strokeWidth={1}
+          />
+        </div>
+
+        <CardContent className="relative p-5">
+          {/* Header */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+
+                <h2 className="text-sm font-semibold">
+                  Overview
+                </h2>
+              </div>
+
+              <p className="mt-1 text-xs text-muted-foreground">
+                Ringkasan template surat Anda
+              </p>
             </div>
-            <Button onClick={onNewTemplate} size="sm" className="mt-3 w-full">
+
+            <Button
+              size="sm"
+              onClick={onNewTemplate}
+              className="relative"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Template Baru
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+
+          {/* Stats */}
+          {/* Stats */}
+          <div className="relative mt-5 flex flex-wrap items-center gap-2">
+            {/* Total Template */}
+            <div className="flex items-center gap-2 rounded-lg border bg-background/70 px-3 py-2">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[11px] text-muted-foreground">
+                  Template
+                </span>
+
+                <span className="text-sm font-semibold">
+                  {loading ? "..." : totalLetters}
+                </span>
+              </div>
+            </div>
+
+            {/* Kategori */}
+            <div className="flex items-center gap-2 rounded-lg border bg-background/70 px-3 py-2">
+              <FolderKanban className="h-3.5 w-3.5 text-muted-foreground" />
+
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[11px] text-muted-foreground">
+                  Kategori
+                </span>
+
+                <span className="text-sm font-semibold">
+                  {loading
+                    ? "..."
+                    : categories.length}
+                </span>
+              </div>
+            </div>
+
+            {/* Format */}
+            <div className="flex items-center gap-2 rounded-lg border bg-background/70 px-3 py-2">
+              <FileCheck className="h-3.5 w-3.5 text-muted-foreground" />
+
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[11px] text-muted-foreground">
+                  Format
+                </span>
+
+                <span className="text-sm font-semibold">
+                  DOCX
+                </span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 2. Main Content Card */}
-      <Card className="shadow-2xs">
+      <Card className="shadow-xs border">
         <CardContent className="p-6 space-y-6">
           {/* Header & Controls */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
@@ -249,7 +299,7 @@ export default function DashboardContent({
           </div>
 
           {/* Content Area */}
-          {letters === "loading" ? (
+          {loading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-2">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div
@@ -272,9 +322,9 @@ export default function DashboardContent({
                 {filteredLetters.map((el) => (
                   <Card
                     key={el.id}
-                    className="flex flex-col justify-between transition-all hover:border-foreground/20 shadow-2xs"
+                    className="bg-gray-50 border flex flex-col justify-between transition-all hover:border-foreground/20 shadow-2xs border"
                   >
-                    <div className="p-5 space-y-3">
+                    <div className="px-3 space-y-3">
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary" className="font-normal capitalize">
                           {el.category || "Umum"}
@@ -289,49 +339,65 @@ export default function DashboardContent({
                         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.25rem]">
                           {el.description || "Tidak ada deskripsi."}
                         </p>
+                        <p>
+                          {
+                            el.pdf ?
+                              <a target="blank" href={`${process.env.NEXT_PUBLIC_API_URL}${el.pdf}`} className="text-blue-700">PDF: Lihat PDF file</a>
+                              : <span className="text-red-700">PDF: Click Preview Untuk membuat</span>
+                          }
+                        </p>
                       </div>
                     </div>
 
-                    <div className="border-t bg-muted/20 px-5 py-3 flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-between border-t bg-muted/20 px-4 py-2.5">
+                      {/* Date */}
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>
                           {el.created_at
-                            ? new Date(el.created_at).toLocaleDateString(
-                                "id-ID"
-                              )
+                            ? new Date(el.created_at).toLocaleDateString("id-ID", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
                             : "-"}
                         </span>
                       </div>
 
+                      {/* Actions */}
                       <div className="flex items-center gap-1">
+                        {/* Preview */}
                         <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-7 w-7"
-                          title="Lihat"
+                          size="sm"
+                          className="h-8 rounded-md px-3 text-xs"
+                          onClick={() => onPreviewLetter(el.id)}
                         >
-                          <Eye className="h-3.5 w-3.5" />
+                          <FileOutput className="mr-1.5 h-3.5 w-3.5" />
+                          Preview
                         </Button>
 
+                        {/* Edit */}
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7"
-                          onClick={() => onEditLetter(el)}
-                          title="Edit"
+                          className="h-8 w-8"
+                          onClick={() => onEditLetter(el.id)}
+                          title="Edit template"
                         >
                           <Pencil className="h-3.5 w-3.5" />
+                          <span className="sr-only">Edit</span>
                         </Button>
 
+                        {/* Delete */}
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                           onClick={() => onRemoveLetter(el.id)}
-                          title="Hapus"
+                          title="Hapus template"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
+                          <span className="sr-only">Hapus</span>
                         </Button>
                       </div>
                     </div>
@@ -356,9 +422,6 @@ export default function DashboardContent({
                               <Badge variant="outline" className="text-xs font-normal capitalize">
                                 {el.category}
                               </Badge>
-                              <span className="text-xs text-muted-foreground">
-                                {el.file}
-                              </span>
                             </div>
                           </div>
                         </div>
@@ -375,41 +438,56 @@ export default function DashboardContent({
 
                           <div className="grid gap-2 md:grid-cols-2 pt-2 border-t text-muted-foreground">
                             <div>
-                              <span className="font-medium text-foreground">File:</span> {el.file}
+                              <p>
+                          {
+                            el.pdf ?
+                              <a target="blank" href={`${process.env.NEXT_PUBLIC_API_URL}${el.pdf}`} className="text-blue-700">PDF: Lihat PDF file</a>
+                              : <span className="text-red-700">PDF: Click Preview Untuk membuat</span>
+                          }
+                        </p>
                             </div>
                             <div>
                               <span className="font-medium text-foreground">Dibuat:</span>{" "}
                               {el.created_at
                                 ? new Date(el.created_at).toLocaleDateString(
-                                    "id-ID"
-                                  )
+                                  "id-ID"
+                                )
                                 : "-"}
                             </div>
                           </div>
 
                           <div className="flex flex-wrap gap-2 pt-2">
-                            <Button size="sm" variant="default">
-                              <Eye className="mr-1.5 h-3.5 w-3.5" />
-                              Lihat
-                            </Button>
-
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => onEditLetter(el)}
-                            >
-                              <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                              Edit
-                            </Button>
+                          size="sm"
+                          className="h-8 rounded-md px-3 text-xs"
+                          onClick={() => onPreviewLetter(el.id)}
+                        >
+                          <FileOutput className="mr-1.5 h-3.5 w-3.5" />
+                          Preview
+                        </Button>
+                            {/* Edit */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => onEditLetter(el.id)}
+                          title="Edit template"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
 
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => onRemoveLetter(el.id)}
-                            >
-                              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                              Hapus
-                            </Button>
+                        {/* Delete */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => onRemoveLetter(el.id)}
+                          title="Hapus template"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span className="sr-only">Hapus</span>
+                        </Button>
                           </div>
                         </div>
                       </AccordionContent>

@@ -8,22 +8,29 @@ import { toast } from "sonner"
 import { useAuth } from "@/store/useAuth"
 import { useConfirm } from "@/store/useConfirm"
 import DashboardHeader from "@/components/dashboard/dashboardHeader"
-import DashboardContent, { Letter } from "@/components/dashboard/dashboardContent"
-import LetterModal from "@/components/dashboard/letterModal"
+import DashboardContent from "@/components/dashboard/dashboardContent"
+import LetterModal from "@/components/dashboard/modalLetter"
+import ModalPreview from "@/components/dashboard/modalPreview"
+import { Letter, useLetters } from "@/store/useLetters"
 
-interface LetterModalState {
+interface ModalState {
   open: boolean
-  letter: Letter | null
+  letter_id: number | null
 }
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
   const auth = getAuth()
-  const [letters, setLetters] = useState<Letter[] | "loading">("loading")
-  const [letterModal, setLetterModal] = useState<LetterModalState>({
+  const { letters, fetchLetters, removeLetter } = useLetters()
+  const [letterModal, setLetterModal] = useState<ModalState>({
     open: false,
-    letter: null,
+    letter_id: null,
   })
+  const [previewModal, setPreviewModal] = useState<ModalState>({
+    open: false,
+    letter_id: null
+  })
+
   const confirm = useConfirm()
   const router = useRouter()
 
@@ -32,66 +39,25 @@ export default function Dashboard() {
       title: "peringatan",
       description: "yakin ingin logout",
     })
-    if(ask) {
+    if (ask) {
       logout()
       router.replace("/")
     }
   }
 
-  const getLetters = async () => {
-    setLetters("loading")
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/letter/byuser/?uid=${user?.uid}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
-          },
-        }
-      )
-      const { status } = response
-
-      if (status !== 200) {
-        setLetters([])
-        throw new Error("Gagal ambil data surat")
-      }
-      const json = await response.json()
-      setLetters(json.data)
-    } catch (error) {
-      toast.error("Gagal", {
-        description:
-          error instanceof Error ? error.message : "Terjadi kesalahan",
-        richColors: true,
-      })
-    }
-  }
-
-  const removeLetter = async (id: string) => {
+  const handleRemoveLetter = async (id: number) => {
     try {
       const ok = await confirm({
         title: "Peringatan",
         description: "Yakin ingin hapus surat",
       })
       if (ok) {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/letter/?id=${id}&uid=${user?.uid}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
-            },
-          }
-        )
-        if (!response.ok) {
-          throw new Error("Gagal ambil data surat")
-        }
-        const json = await response.json()
+        await removeLetter(id)
         toast.success("Berhasil", {
-          description: json.message,
+          description: "Template surat berhasil dihapus.",
           richColors: true,
         })
-        getLetters()
+        handleGetLetters()
       }
     } catch (error) {
       toast.error("Gagal", {
@@ -102,41 +68,57 @@ export default function Dashboard() {
     }
   }
 
+  const handleGetLetters = async () => {
+    fetchLetters()
+  }
+
   useEffect(() => {
     if (user) {
-      getLetters()
+      handleGetLetters()
     }
   }, [user])
+
+  useEffect(() => {
+    console.log(letterModal)
+  }, [letterModal])
 
   return (
     <div className="min-h-screen bg-muted/30 pb-12">
       <div className="mx-auto max-w-7xl space-y-8 p-4 md:p-8">
         <DashboardHeader
           user={user}
-          lettersCount={letters === "loading" ? 0 : letters.length}
-          onNewTemplate={() => setLetterModal({ letter: null, open: true })}
+          lettersCount={letters.length}
+          onNewTemplate={() => setLetterModal({ letter_id: 0, open: true })}
           onLogout={goLogout}
         />
 
         {/* Dashboard Main Content */}
         <DashboardContent
-          letters={letters}
-          onNewTemplate={() => setLetterModal({ letter: null, open: true })}
-          onEditLetter={(letter) => setLetterModal({ letter, open: true })}
-          onRemoveLetter={removeLetter}
+          onNewTemplate={() => setLetterModal({ letter_id: null, open: true })}
+          onEditLetter={(letter_id) => setLetterModal({ letter_id: letter_id, open: true })}
+          onRemoveLetter={handleRemoveLetter}
+          onPreviewLetter={(letter_id) => setPreviewModal({ letter_id, open: true })}
         />
       </div>
 
-      <LetterModal
-        open={letterModal.open}
-        onOpenChange={(update) => {
-          setLetterModal({ ...letterModal, open: false })
-          if (update) {
-            getLetters()
-          }
-        }}
-        letter={letterModal.letter}
-      />
+      {
+        <LetterModal
+          open={letterModal.open}
+          onOpenChange={() => setLetterModal({ ...letterModal, open: false })}
+          letter_id={letterModal.letter_id}
+        />
+      }
+      {
+        previewModal.letter_id &&
+        <ModalPreview
+          letter_id={previewModal.letter_id}
+          open={previewModal.open}
+          onOpenChange={() => setPreviewModal({ ...previewModal, open: false })}
+        />
+      }
+      <footer className="text-center text-xs">
+        @copyright all reserved by Al Abd with 🔥
+      </footer>
     </div>
   )
 }

@@ -6,12 +6,17 @@ import {
   BookOpen,
   FileText,
   Home,
-  Layers,
   LogOut,
   Plus,
   ShieldCheck,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
@@ -41,6 +46,7 @@ export default function DashboardHeader({
 
   useEffect(() => {
     const hour = new Date().getHours()
+
     if (hour >= 3 && hour < 11) {
       setGreeting("Selamat pagi")
     } else if (hour >= 11 && hour < 15) {
@@ -52,73 +58,91 @@ export default function DashboardHeader({
     }
   }, [])
 
-  const initial = user?.name?.charAt(0).toUpperCase() || "U"
+  const initial =
+    user?.name?.charAt(0).toUpperCase() || "U"
 
   return (
-    <header className="rounded-xl border bg-card p-6 shadow-2xs">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        {/* Left: User Info */}
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14 rounded-xl border">
-            <AvatarImage src={user?.photo} alt={user?.name || "User"} />
-            <AvatarFallback className="rounded-xl text-lg font-semibold">
+    <header className="rounded-xl border bg-card shadow-sm">
+      <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+        {/* User */}
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar className="h-11 w-11 shrink-0 rounded-lg border">
+            <AvatarImage
+              src={user?.photo}
+              alt={user?.name || "User"}
+            />
+
+            <AvatarFallback className="rounded-lg text-sm font-semibold">
               {initial}
             </AvatarFallback>
           </Avatar>
 
-          <div className="space-y-1">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight">
+              <h1 className="truncate text-lg font-semibold tracking-tight">
                 {greeting}, {user?.name || "Pengguna"}
               </h1>
-              <Badge variant="secondary" className="gap-1 font-normal">
-                <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
-                Administrator
+
+              <Badge
+                variant="secondary"
+                className="hidden gap-1 text-xs font-normal sm:inline-flex"
+              >
+                <ShieldCheck className="h-3 w-3" />
+                Admin
               </Badge>
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              Kelola template surat administrasi pendidikan dengan cepat dan efisien.
-            </p>
+            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="hidden sm:inline">
+                Platform Surat Digital
+              </span>
 
-            <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
-              <div className="flex items-center gap-1.5">
+              <span className="hidden sm:inline">•</span>
+
+              <span className="flex items-center gap-1">
                 <FileText className="h-3.5 w-3.5" />
-                <span>Platform Surat Digital</span>
-              </div>
-              <span>•</span>
-              <div className="flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5" />
-                <span>{lettersCount} Template Tersedia</span>
-              </div>
+                {lettersCount} template
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={onNewTemplate}>
-            <Plus className="mr-2 h-4 w-4" />
+        {/* Actions */}
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Button
+            size="sm"
+            onClick={onNewTemplate}
+            className="sm:h-9"
+          >
+            <Plus className="mr-1.5 h-4 w-4" />
             Template Baru
           </Button>
 
-          <Link href="/guide" target="_blank">
-            <Button variant="outline">
-              <BookOpen className="mr-2 h-4 w-4" />
-              Panduan
-            </Button>
+          <Link
+            href="/dashboard/guide"
+            target="_blank"
+            className="inline-flex h-9 items-center justify-center rounded-md border bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <BookOpen className="mr-1.5 h-4 w-4" />
+            Panduan
           </Link>
 
-          <Link href="/">
-            <Button variant="outline">
-              <Home className="mr-2 h-4 w-4" />
-              Beranda
-            </Button>
+          <Link
+            href="/"
+            className="inline-flex h-9 items-center justify-center rounded-md border bg-background px-3 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <Home className="mr-1.5 h-4 w-4" />
+            Beranda
           </Link>
 
-          <Button variant="destructive" onClick={onLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onLogout}
+            className="h-9 text-destructive hover:text-destructive"
+          >
+            <LogOut className="mr-1.5 h-4 w-4" />
+            Keluar
           </Button>
         </div>
       </div>
